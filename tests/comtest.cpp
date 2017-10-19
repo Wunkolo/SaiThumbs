@@ -11,80 +11,80 @@
 #pragma comment(lib, "Shlwapi.lib")
 #pragma comment(lib, "Ole32.lib")
 
-// Our GUID here:
 LPCOLESTR myGuid = L"{35788B9B-04AB-4B75-AB3A-1ED403AFC746}";
 
 typedef HRESULT ourDllGetClassObjectT(REFCLSID rclsid, REFIID riid, void** ppv);
 
-BOOL SaveHBITMAPToFile(HBITMAP hBitmap, LPCTSTR lpszFileName)
+BOOL SaveHBITMAPToFile(HBITMAP Bitmap, const char* Filename)
 {
-	HDC hDC;
-	int iBits;
-	WORD wBitCount;
-	DWORD dwPaletteSize = 0, dwBmBitsSize = 0, dwDIBSize = 0, dwWritten = 0;
+	const DWORD PaletteSize = 0;
+	DWORD BmBitsSize = 0, DibSize = 0, Written = 0;
 	BITMAP Bitmap0;
-	BITMAPFILEHEADER bmfHdr;
+	BITMAPFILEHEADER Header;
 	BITMAPINFOHEADER bi;
-	LPBITMAPINFOHEADER lpbi;
-	HANDLE fh, hDib, hPal, hOldPal2 = NULL;
-	hDC = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
-	iBits = GetDeviceCaps(hDC, BITSPIXEL) * GetDeviceCaps(hDC, PLANES);
-	DeleteDC(hDC);
-	wBitCount = iBits;
-	GetObject(hBitmap, sizeof(Bitmap0), (LPSTR)&Bitmap0);
+	HANDLE hOldPal2 = nullptr;
+	HDC DeviceContext = CreateDC(TEXT("DISPLAY"), nullptr, nullptr, nullptr);
+	const int Bits = GetDeviceCaps(DeviceContext, BITSPIXEL) * GetDeviceCaps(DeviceContext, PLANES);
+	DeleteDC(DeviceContext);
+	const WORD BitCount = Bits;
+	GetObject(Bitmap, sizeof(Bitmap0), reinterpret_cast<LPSTR>(&Bitmap0));
 	bi.biSize = sizeof(BITMAPINFOHEADER);
 	bi.biWidth = Bitmap0.bmWidth;
 	bi.biHeight = -Bitmap0.bmHeight;
 	bi.biPlanes = 1;
-	bi.biBitCount = wBitCount;
+	bi.biBitCount = BitCount;
 	bi.biCompression = BI_RGB;
 	bi.biSizeImage = 0;
 	bi.biXPelsPerMeter = 0;
 	bi.biYPelsPerMeter = 0;
 	bi.biClrImportant = 0;
 	bi.biClrUsed = 256;
-	dwBmBitsSize = ((Bitmap0.bmWidth * wBitCount + 31) & ~31) / 8
+	BmBitsSize = ((Bitmap0.bmWidth * BitCount + 31) & ~31) / 8
 		* Bitmap0.bmHeight;
-	hDib = GlobalAlloc(GHND, dwBmBitsSize + dwPaletteSize + sizeof(BITMAPINFOHEADER));
-	lpbi = (LPBITMAPINFOHEADER)GlobalLock(hDib);
+	const HANDLE hDib = GlobalAlloc(GHND, BmBitsSize + PaletteSize + sizeof(BITMAPINFOHEADER));
+	const LPBITMAPINFOHEADER lpbi = static_cast<LPBITMAPINFOHEADER>(GlobalLock(hDib));
 	*lpbi = bi;
 
-	hPal = GetStockObject(DEFAULT_PALETTE);
+	const HANDLE hPal = GetStockObject(DEFAULT_PALETTE);
 	if( hPal )
 	{
-		hDC = GetDC(NULL);
-		hOldPal2 = SelectPalette(hDC, (HPALETTE)hPal, FALSE);
-		RealizePalette(hDC);
+		DeviceContext = GetDC(nullptr);
+		hOldPal2 = SelectPalette(DeviceContext, static_cast<HPALETTE>(hPal), FALSE);
+		RealizePalette(DeviceContext);
 	}
 
 	GetDIBits(
-		hDC, hBitmap, 0, (UINT)Bitmap0.bmHeight, (LPSTR)lpbi + sizeof(BITMAPINFOHEADER)
-		+ dwPaletteSize, (BITMAPINFO *)lpbi, DIB_RGB_COLORS);
+		DeviceContext, Bitmap, 0, static_cast<UINT>(Bitmap0.bmHeight),
+		reinterpret_cast<LPSTR>(lpbi) + sizeof(BITMAPINFOHEADER)
+		+ PaletteSize, reinterpret_cast<BITMAPINFO *>(lpbi), DIB_RGB_COLORS);
 
 	if( hOldPal2 )
 	{
-		SelectPalette(hDC, (HPALETTE)hOldPal2, TRUE);
-		RealizePalette(hDC);
-		ReleaseDC(NULL, hDC);
+		SelectPalette(DeviceContext, static_cast<HPALETTE>(hOldPal2), TRUE);
+		RealizePalette(DeviceContext);
+		ReleaseDC(nullptr, DeviceContext);
 	}
 
-	fh = CreateFile(
-		lpszFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+	HANDLE fh = CreateFile(
+		Filename, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 
 	if( fh == INVALID_HANDLE_VALUE )
+	{
 		return FALSE;
+	}
 
-	bmfHdr.bfType = 0x4D42; // "BM"
-	dwDIBSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + dwPaletteSize + dwBmBitsSize;
-	bmfHdr.bfSize = dwDIBSize;
-	bmfHdr.bfReserved1 = 0;
-	bmfHdr.bfReserved2 = 0;
-	bmfHdr.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER) + dwPaletteSize;
+	Header.bfType = 0x4D42; // "BM"
+	DibSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + PaletteSize + BmBitsSize;
+	Header.bfSize = DibSize;
+	Header.bfReserved1 = 0;
+	Header.bfReserved2 = 0;
+	Header.bfOffBits = static_cast<DWORD>(sizeof(BITMAPFILEHEADER)) + static_cast<DWORD>(sizeof(BITMAPINFOHEADER)) +
+		PaletteSize;
 
-	WriteFile(fh, (LPSTR)&bmfHdr, sizeof(BITMAPFILEHEADER), &dwWritten, NULL);
+	WriteFile(fh, reinterpret_cast<LPSTR>(&Header), sizeof(BITMAPFILEHEADER), &Written, nullptr);
 
-	WriteFile(fh, (LPSTR)lpbi, dwDIBSize, &dwWritten, NULL);
+	WriteFile(fh, reinterpret_cast<LPSTR>(lpbi), DibSize, &Written, nullptr);
 	GlobalUnlock(hDib);
 	GlobalFree(hDib);
 	CloseHandle(fh);
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 	IIDFromString(myGuid, &clsid);
 
 	HRESULT r;
-	HMODULE dll = NULL;
+	HMODULE dll = nullptr;
 
 	dll = LoadLibraryA("SaiThumbs.dll");
 	if( !dll )
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 	ourDllGetClassObjectT* ourDllGetClassObject = reinterpret_cast<ourDllGetClassObjectT*>(GetProcAddress(
 		dll, "DllGetClassObject"));
 
-	IClassFactory* pFactory = NULL;
+	IClassFactory* pFactory = nullptr;
 	r = ourDllGetClassObject(clsid, IID_IClassFactory, reinterpret_cast<void**>(&pFactory));
 	if( r != S_OK )
 	{
@@ -120,7 +120,7 @@ int main(int argc, char** argv)
 	}
 
 	IInitializeWithFile* InitWithFile;
-	r = pFactory->CreateInstance(NULL, IID_IInitializeWithFile, reinterpret_cast<void**>(&InitWithFile));
+	r = pFactory->CreateInstance(nullptr, IID_IInitializeWithFile, reinterpret_cast<void**>(&InitWithFile));
 	if( r != S_OK )
 	{
 		printf("failed: get object\n");
