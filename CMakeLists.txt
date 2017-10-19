@@ -1,8 +1,8 @@
 cmake_minimum_required( VERSION 3.8.0 )
 project( SaiThumbs )
 
-set( LIBRARY_OUTPUT_DIRECTORY "build/" )
-set( EXECUTABLE_OUTPUT_DIRECTORY "build/" )
+set( LIBRARY_OUTPUT_DIRECTORY "bin/" )
+set( EXECUTABLE_OUTPUT_DIRECTORY "bin/" )
 
 ### Standard
 set( CMAKE_CXX_STANDARD 14 )
