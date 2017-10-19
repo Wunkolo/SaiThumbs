@@ -24,7 +24,7 @@ SaiThumbProvider::~SaiThumbProvider()
 
 HRESULT SaiThumbProvider::QueryInterface(const IID& riid, void** ppvObject)
 {
-	static const QITAB Tabs[] =
+	static const QITAB InterfaceTable[] =
 	{
 		QITABENT(SaiThumbProvider, IInitializeWithFile),
 		QITABENT(SaiThumbProvider, IThumbnailProvider),
@@ -32,7 +32,7 @@ HRESULT SaiThumbProvider::QueryInterface(const IID& riid, void** ppvObject)
 			nullptr
 		}
 	};
-	return QISearch(this, Tabs, riid, ppvObject);
+	return QISearch(this, InterfaceTable, riid, ppvObject);
 }
 
 ULONG SaiThumbProvider::AddRef() throw()
@@ -71,7 +71,7 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 	const std::float_t Scale = (std::min)(
 		cx / static_cast<std::float_t>(Width),
 		cx / static_cast<std::float_t>(Height)
-		);
+	);
 
 	NewWidth = static_cast<std::uint32_t>(NewWidth * Scale);
 	NewHeight = static_cast<std::uint32_t>(NewHeight * Scale);

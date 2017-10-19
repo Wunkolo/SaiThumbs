@@ -22,10 +22,10 @@ public:
 	virtual ULONG __stdcall Release() throw() override;
 
 	// IInitializeWithFile
-	virtual HRESULT _stdcall  Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw() override;
+	virtual HRESULT _stdcall Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw() override;
 
 	// IThumbnailProvider
-	virtual HRESULT _stdcall  GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha) throw() override;
+	virtual HRESULT _stdcall GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha) throw() override;
 private:
 	std::unique_ptr<sai::Document> CurDocument;
 

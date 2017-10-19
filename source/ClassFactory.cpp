@@ -20,14 +20,14 @@ CClassFactory::~CClassFactory()
 
 HRESULT CClassFactory::QueryInterface(const IID& riid, void** ppvObject)
 {
-	static const QITAB Tabs[] =
+	static const QITAB InterfaceTable[] =
 	{
 		QITABENT(CClassFactory, IClassFactory),
 		{
 			nullptr
 		},
 	};
-	return QISearch(this, Tabs, riid, ppvObject);
+	return QISearch(this, InterfaceTable, riid, ppvObject);
 }
 
 ULONG CClassFactory::AddRef()
@@ -58,9 +58,9 @@ HRESULT CClassFactory::CreateInstance(IUnknown* pUnkOuter, const IID& riid, void
 		return E_OUTOFMEMORY;
 	}
 
-	HRESULT hr = Provider->QueryInterface(riid, ppvObject);
+	const HRESULT Result = Provider->QueryInterface(riid, ppvObject);
 	Provider->Release();
-	return hr;
+	return Result;
 }
 
 HRESULT CClassFactory::LockServer(BOOL fLock)
