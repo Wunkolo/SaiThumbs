@@ -2,9 +2,10 @@ version: 0.1.{build}
 image: Visual Studio 2017
 configuration: Release
 
+
+# Note: "Win32" rather than "x86" since Visual Studio uses Release|Win32
+# and not Release|x86
 platform:
-	# Note: "Win32" rather than "x86" since Visual Studio uses Release|Win32
-	# and not Release|x86
 	- Win32
 	- x64
 
