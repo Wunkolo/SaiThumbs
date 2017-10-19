@@ -11,7 +11,7 @@
 #include <Globals.hpp>
 #include <ClassFactory.hpp>
 
-HMODULE ModuleInstance;
+extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 std::int32_t __stdcall DllMain(HINSTANCE hDLL, std::uint32_t Reason, void* Reserved)
 {
@@ -19,7 +19,6 @@ std::int32_t __stdcall DllMain(HINSTANCE hDLL, std::uint32_t Reason, void* Reser
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		ModuleInstance = hDLL;
 		DisableThreadLibraryCalls(hDLL);
 		break;
 	}
@@ -32,9 +31,8 @@ std::int32_t __stdcall DllMain(HINSTANCE hDLL, std::uint32_t Reason, void* Reser
 extern "C" HRESULT __stdcall DllRegisterServer()
 {
 	WCHAR ModulePath[MAX_PATH];
-
 	GetModuleFileNameW(
-		ModuleInstance,
+		reinterpret_cast<HMODULE>(&__ImageBase),
 		ModulePath,
 		MAX_PATH
 	);
