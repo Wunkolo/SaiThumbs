@@ -9,6 +9,7 @@
 #include <Shlwapi.h>
 #include <Thumbcache.h>
 #include <Unknwn.h>
+#include <string>
 
 #pragma comment(lib, "Shlwapi.lib")
 #pragma comment(lib, "Ole32.lib")
@@ -17,18 +18,26 @@ const wchar_t* ProviderGUID = L"{35788B9B-04AB-4B75-AB3A-1ED403AFC746}";
 
 using DllGetClassObjectT = HRESULT(const IID& rclsid, const IID& riid, void** ppv);
 
-BOOL SaveHBITMAPToFile(HBITMAP Bitmap, const char* Filename);
+BOOL SaveHBITMAPToFile(HBITMAP Bitmap, const wchar_t* Filename);
 
-int main(int argc, char** argv)
+int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 {
+	if( argc < 3)
+	{
+		std::wprintf(
+			L"Usage: %s (Sai File) (output.bmp)\n",
+			argv[0]
+		);
+		return EXIT_FAILURE;
+	}
 	GUID clsid;
 	IIDFromString(ProviderGUID, &clsid);
 
-	HMODULE DLLHandle = LoadLibraryA("SaiThumbs.dll");
+	const HMODULE DLLHandle = LoadLibraryA("SaiThumbs.dll");
 
 	if( !DLLHandle )
 	{
-		std::puts("can't open DLL");
+		std::puts("Failed: Can't open DLL");
 		return EXIT_FAILURE;
 	}
 
@@ -66,7 +75,7 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	Result = InitWithFile->Initialize(L"./test.sai", 0);
+	Result = InitWithFile->Initialize(argv[1] , 0);
 	InitWithFile->Release();
 	if( Result != S_OK )
 	{
@@ -86,13 +95,13 @@ int main(int argc, char** argv)
 
 	SaveHBITMAPToFile(
 		ThumbImage,
-		"./test.bmp"
+		argv[2]
 	);
 
 	return EXIT_SUCCESS;
 }
 
-BOOL SaveHBITMAPToFile(HBITMAP Bitmap, const char* Filename)
+BOOL SaveHBITMAPToFile(HBITMAP Bitmap, const wchar_t* Filename)
 {
 	const DWORD PaletteSize = 0;
 	DWORD BmBitsSize = 0, HeaderSize = 0, Written = 0;
@@ -142,7 +151,7 @@ BOOL SaveHBITMAPToFile(HBITMAP Bitmap, const char* Filename)
 		ReleaseDC(nullptr, DeviceContext);
 	}
 
-	const HANDLE FileHandle = CreateFileA(
+	const HANDLE FileHandle = CreateFileW(
 		Filename, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
 
