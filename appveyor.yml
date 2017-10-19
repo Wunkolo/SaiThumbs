@@ -28,10 +28,10 @@ before_build:
 build:
     project: build/SaiThumbs.sln
     parallel: true
-    verbosity: normal
+    verbosity: minimal
 
 after_build:
     - cmd: 7z a SaiThumbs-%platform%.zip %APPVEYOR_BUILD_FOLDER%/build/bin/*.dll %APPVEYOR_BUILD_FOLDER%/build/bin/*.bat
 
 artifacts:
-    - path: SaiThumbs-%platform%.zip
+    - path: build/SaiThumbs-%platform%.zip
