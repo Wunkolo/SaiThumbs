@@ -1,1 +1,1 @@
-SaiThumbs
+# SaiThumbs [![Build status](https://ci.appveyor.com/api/projects/status/jt6gykk5039f1w7c?svg=true)](https://ci.appveyor.com/project/Wunkolo/saithumbs) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Wunkolo/SaiThumbs/master/LICENSE)
