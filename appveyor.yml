@@ -31,7 +31,11 @@ build:
     verbosity: minimal
 
 after_build:
-    - cmd: 7z a SaiThumbs-%platform%.zip %APPVEYOR_BUILD_FOLDER%/build/bin/*.dll %APPVEYOR_BUILD_FOLDER%/build/bin/*.bat
+    - cmd: if "%platform%"=="Win32" set ArchName="x86"
+    - cmd: if "%platform%"=="x64" set ArchName="x64"
+    - cmd: 7z a SaiThumbs-%ArchName%.zip bin/*.dll bin/*.bat
 
 artifacts:
-    - path: build/SaiThumbs-%platform%.zip
+    - path: build/SaiThumbs-%ArchName%.zip
+      name: SaiThumbs-%ArchName%
+      type: zip
