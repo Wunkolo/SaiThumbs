@@ -51,6 +51,18 @@ target_link_libraries(
 	libsai Shlwapi.lib
 )
 
+configure_file(
+	bin/install.bat
+	${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_DIRECTORY}/install.bat
+	COPYONLY
+)
+
+configure_file(
+	bin/uninstall.bat
+	${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_DIRECTORY}/uninstall.bat
+	COPYONLY
+)
+
 ### Tests
 add_executable(
 	comtest
