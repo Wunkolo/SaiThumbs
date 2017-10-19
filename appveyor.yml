@@ -11,16 +11,15 @@ platform:
 
 # Recursive clone
 install:
-- cmd: git submodule update --init --recursive
+    - cmd: git submodule update --init --recursive
 
 # Configure platform 
 before_build:
-- cmd: >-
-    mkdir build
-    cd build
-    if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME="Visual Studio 15 2017"
-    if "%platform%"=="x64" set CMAKE_GENERATOR_NAME="Visual Studio 15 2017 Win64"
-    cmake -G %CMAKE_GENERATOR_NAME% -DCMAKE_BUILD_TYPE=%configuration% ..
+    - cmd: mkdir build
+    - cmd: cd build
+    - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME="Visual Studio 15 2017"
+    - cmd: if "%platform%"=="x64" set CMAKE_GENERATOR_NAME="Visual Studio 15 2017 Win64"
+    - cmd: cmake -G %CMAKE_GENERATOR_NAME% -DCMAKE_BUILD_TYPE=%configuration% ..
 
 build:
     project: build/SaiThumbs.sln
