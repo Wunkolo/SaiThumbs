@@ -2,7 +2,7 @@
 
 SaiThumbs is a Windows Shell extension that will allow image thumbnails for the `.sai` files produced from [SYSTEMAX's PaintTool Sai](https://www.systemax.jp/en/sai/).
 
-### [Download the latest build here!](https://wunkolo.itch.io/saithumbs)
+### [Download the latest release here!](https://wunkolo.itch.io/saithumbs)
 
 ![logo](media/logo.gif)
 
