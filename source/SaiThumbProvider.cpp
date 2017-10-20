@@ -37,7 +37,7 @@ HRESULT SaiThumbProvider::QueryInterface(const IID& riid, void** ppvObject)
 
 ULONG SaiThumbProvider::AddRef() throw()
 {
-	return ++ReferenceCount;
+	return static_cast<std::uint32_t>(++ReferenceCount);
 }
 
 ULONG SaiThumbProvider::Release() throw()
@@ -47,7 +47,7 @@ ULONG SaiThumbProvider::Release() throw()
 	{
 		delete this;
 	}
-	return NewReferenceCount;
+	return static_cast<std::uint32_t>(NewReferenceCount);
 }
 
 HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha) throw()
@@ -82,7 +82,7 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 	}
 
 	std::unique_ptr<std::uint8_t[]> Resized = std::make_unique<std::uint8_t[]>(
-		NewWidth * NewHeight * 4
+		NewWidth * NewHeight * sizeof(std::uint32_t)
 	);
 
 	// Resize image to fit requested size
@@ -98,7 +98,7 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 		NewWidth,
 		NewHeight,
 		1,
-		32,
+		sizeof(std::uint32_t) * 8,
 		Resized.get()
 	);
 

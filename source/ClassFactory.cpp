@@ -32,7 +32,7 @@ HRESULT CClassFactory::QueryInterface(const IID& riid, void** ppvObject)
 
 ULONG CClassFactory::AddRef()
 {
-	return ++ReferenceCount;
+	return static_cast<std::uint32_t>(++ReferenceCount);
 }
 
 ULONG CClassFactory::Release()
@@ -42,7 +42,7 @@ ULONG CClassFactory::Release()
 	{
 		delete this;
 	}
-	return NewReferenceCount;
+	return static_cast<std::uint32_t>(NewReferenceCount);
 }
 
 HRESULT CClassFactory::CreateInstance(IUnknown* pUnkOuter, const IID& riid, void** ppvObject)
