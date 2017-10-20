@@ -2,10 +2,16 @@
 
 SaiThumbs is a Windows Shell extension that will allow image thumbnails for the `.sai` files produced from [SYSTEMAX's PaintTool Sai](https://www.systemax.jp/en/sai/).
 
-Before:
+### [Download the latest build here!](https://wunkolo.itch.io/saithumbs)
 
-![before](media/before.png)
+![logo](media/logo.gif)
 
-After:
+![sample](media/sample.gif)
 
-![after](media/after.png)
+![install](media/install.gif)
+
+---
+
+Between SaiThumbs installations and updates you ​may​ still see cached thumbnails for .sai files in explorer even after uninstalling or updating to a new SaiThumbs.dll. You can clear your thumbnail cache by running "Disk Cleanup" and selecting "Thumbnails" before cleaning.
+
+![cleanup](media/cleanup.png)
