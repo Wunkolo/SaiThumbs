@@ -66,40 +66,45 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 		return E_FAIL;
 	}
 
-	std::uint32_t NewWidth = Width, NewHeight = Height;
-
-	const std::float_t Scale = (std::min)(
-		cx / static_cast<std::float_t>(Width),
-		cx / static_cast<std::float_t>(Height)
-	);
-
-	NewWidth = static_cast<std::uint32_t>(NewWidth * Scale);
-	NewHeight = static_cast<std::uint32_t>(NewHeight * Scale);
-
-	if( !NewWidth || !NewHeight )
+	if( cx < Width || cx < Height )
 	{
-		return E_FAIL;
+		const std::float_t Scale = (std::min)(
+			cx / static_cast<std::float_t>(Width),
+			cx / static_cast<std::float_t>(Height)
+		);
+
+		const std::uint32_t NewWidth = static_cast<std::uint32_t>(Width * Scale);
+		const std::uint32_t NewHeight = static_cast<std::uint32_t>(Height * Scale);
+
+		if( !NewWidth || !NewHeight )
+		{
+			return E_FAIL;
+		}
+
+		std::unique_ptr<std::uint8_t[]> Resized = std::make_unique<std::uint8_t[]>(
+			NewWidth * NewHeight * 4
+		);
+
+		// Resize image to fit requested size
+		stbir_resize_uint8(
+			PixelData.get(),
+			Width, Height, 0,
+			Resized.get(),
+			NewWidth, NewHeight, 0,
+			4
+		);
+
+		Width = NewWidth;
+		Height = NewHeight;
+		PixelData = std::move(Resized);
 	}
 
-	std::unique_ptr<std::uint8_t[]> Resized = std::make_unique<std::uint8_t[]>(
-		NewWidth * NewHeight * sizeof(std::uint32_t)
-	);
-
-	// Resize image to fit requested size
-	stbir_resize_uint8(
-		PixelData.get(),
-		Width, Height, 0,
-		Resized.get(),
-		NewWidth, NewHeight, 0,
-		4
-	);
-
 	const HBITMAP Bitmap = CreateBitmap(
-		NewWidth,
-		NewHeight,
+		Width,
+		Height,
 		1,
-		sizeof(std::uint32_t) * 8,
-		Resized.get()
+		32,
+		PixelData.get()
 	);
 
 	if( Bitmap == nullptr )
@@ -116,8 +121,7 @@ HRESULT SaiThumbProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw()
 {
 	const std::wstring WFilePath(pszFilePath);
 
-	using ConverterType = std::codecvt_utf8<wchar_t>;
-	std::wstring_convert<ConverterType, wchar_t> Converter;
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> Converter;
 	std::string FilePath = Converter.to_bytes(WFilePath);
 
 	std::unique_ptr<sai::Document> NewDocument = std::make_unique<sai::Document>(
