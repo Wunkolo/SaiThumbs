@@ -39,8 +39,11 @@ include_directories(
 add_library(
 	${PROJECT_NAME}
 	SHARED
-	source/main.cpp
+
 	source/SaiThumbs.def
+	source/version.rc
+
+	source/main.cpp
 	source/SaiThumbProvider.cpp
 	source/ClassFactory.cpp
 	source/Globals.cpp
