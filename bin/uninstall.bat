@@ -1,1 +1,1 @@
-regsvr32 /s /u SaiThumbs.dll
+regsvr32 /u SaiThumbs.dll
