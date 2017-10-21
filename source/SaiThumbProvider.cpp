@@ -119,13 +119,8 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 
 HRESULT SaiThumbProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw()
 {
-	const std::wstring WFilePath(pszFilePath);
-
-	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> Converter;
-	std::string FilePath = Converter.to_bytes(WFilePath);
-
 	std::unique_ptr<sai::Document> NewDocument = std::make_unique<sai::Document>(
-		FilePath.c_str()
+		pszFilePath
 	);
 
 	if( !NewDocument->IsOpen() )
