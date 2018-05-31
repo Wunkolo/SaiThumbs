@@ -24,6 +24,18 @@ SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${OUTPUT_DIRECTORY}" )
 ### Flags
 add_compile_options( /W3 )
 
+# Force static linking of runtime
+foreach(
+	CurFlag
+	CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+	CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+)
+	# Replace all instances of /MD with /MT
+	if(${CurFlag} MATCHES "/MD")
+		string(REGEX REPLACE "/MD" "/MT" ${CurFlag} "${${CurFlag}}")
+	endif(${CurFlag} MATCHES "/MD")
+endforeach(CurFlag)
+
 ### Dependencies
 add_subdirectory( external )
 
