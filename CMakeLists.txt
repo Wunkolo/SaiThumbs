@@ -9,7 +9,7 @@ set( CMAKE_CXX_EXTENSIONS OFF )
 ### Verbosity
 set( CMAKE_COLOR_MAKEFILE ON )
 set( CMAKE_VERBOSE_MAKEFILE ON )
-set( CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
 ### Build artifacts
 set( OUTPUT_DIRECTORY "bin" )
@@ -37,19 +37,14 @@ foreach(
 endforeach(CurFlag)
 
 ### Dependencies
-add_subdirectory( external )
-
-## libsai
-include_directories(
-	${LIBSAI_INCLUDE_DIRS}
-)
+add_subdirectory( external/libsai )
 
 ### Target
 include_directories(
 	include
 )
 add_library(
-	${PROJECT_NAME}
+	SaiThumbs
 	SHARED
 
 	source/SaiThumbs.def
@@ -63,7 +58,7 @@ add_library(
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
-	libsai Shlwapi.lib
+	sai Shlwapi.lib
 )
 
 configure_file(
