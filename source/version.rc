@@ -14,7 +14,7 @@ BEGIN
 			VALUE "CompanyName",		"Wunkolo"
 			VALUE "FileDescription",	"Sai Thumbnail Handler"
 			VALUE "InternalName",		"SaiThumbs"
-			VALUE "LegalCopyright",		"Copyright (C) 2017, Wunkolo"
+			VALUE "LegalCopyright",		"Copyright (C) 2023, Wunkolo"
 			VALUE "OriginalFilename",	"SaiThumbs.dll"
 			VALUE "ProductName",		"SaiThumbs"
 		END
