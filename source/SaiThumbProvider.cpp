@@ -53,8 +53,8 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 		return E_FAIL;
 	}
 
-	std::uint32_t                   Width, Height;
-	std::unique_ptr<std::uint8_t[]> PixelData;
+	std::uint32_t                Width, Height;
+	std::unique_ptr<std::byte[]> PixelData;
 	std::tie(PixelData, Width, Height) = CurDocument->GetThumbnail();
 
 	if( PixelData == nullptr || !Width || !Height )
@@ -75,12 +75,13 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 			return E_FAIL;
 		}
 
-		std::unique_ptr<std::uint8_t[]> Resized
-			= std::make_unique<std::uint8_t[]>(NewWidth * NewHeight * 4);
+		std::unique_ptr<std::byte[]> Resized
+			= std::make_unique<std::byte[]>(NewWidth * NewHeight * 4);
 
 		// Resize image to fit requested size
 		stbir_resize_uint8(
-			PixelData.get(), Width, Height, 0, Resized.get(), NewWidth, NewHeight, 0, 4);
+			reinterpret_cast<const std::uint8_t*>(PixelData.get()), Width, Height, 0,
+			reinterpret_cast<std::uint8_t*>(Resized.get()), NewWidth, NewHeight, 0, 4);
 
 		Width     = NewWidth;
 		Height    = NewHeight;
