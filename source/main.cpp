@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cwchar>
+#include <type_traits>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -9,7 +10,6 @@
 #include <ClassFactory.hpp>
 #include <Config.hpp>
 #include <Globals.hpp>
-#include <Macros.hpp>
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
@@ -46,7 +46,7 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 		 nullptr, REG_SZ, SaiThumbHandlerCLSID},
 	};
 
-	for( std::size_t i = 0; i < countof(Registry); i++ )
+	for( std::size_t i = 0; i < std::extent_v<decltype(Registry)>; i++ )
 	{
 		HKEY                           CurKey;
 		const SaiThumb::RegistryEntry& CurReg = Registry[i];
@@ -90,7 +90,7 @@ extern "C" HRESULT __stdcall DllUnregisterServer()
 		= {L"Software\\Classes\\CLSID\\" SaiThumbHandlerCLSID,
 		   L"Software\\Classes\\" SaiThumbHandlerExtension};
 
-	for( std::size_t i = 0; i < countof(RegistryFolders); i++ )
+	for( std::size_t i = 0; i < std::extent_v<decltype(RegistryFolders)>; i++ )
 	{
 		RegDeleteTreeW(HKEY_CURRENT_USER, RegistryFolders[i]);
 	}
