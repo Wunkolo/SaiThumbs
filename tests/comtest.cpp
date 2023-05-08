@@ -1,5 +1,5 @@
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <cstdio>
 
 #define WIN32_LEAN_AND_MEAN
@@ -20,14 +20,11 @@ using DllGetClassObjectT = HRESULT(const IID& rclsid, const IID& riid, void** pp
 
 BOOL SaveHBITMAPToFile(HBITMAP Bitmap, const wchar_t* Filename);
 
-int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
+int wmain(int argc, wchar_t* argv[], wchar_t* envp[])
 {
-	if( argc < 3)
+	if( argc < 3 )
 	{
-		std::wprintf(
-			L"Usage: %s (Sai File) (output.bmp)\n",
-			argv[0]
-		);
+		std::wprintf(L"Usage: %s (Sai File) (output.bmp)\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 	GUID clsid;
@@ -41,8 +38,8 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 		return EXIT_FAILURE;
 	}
 
-	DllGetClassObjectT* DllGetClassObject = reinterpret_cast<DllGetClassObjectT*>(GetProcAddress(
-		DLLHandle, "DllGetClassObject"));
+	DllGetClassObjectT* DllGetClassObject
+		= reinterpret_cast<DllGetClassObjectT*>(GetProcAddress(DLLHandle, "DllGetClassObject"));
 
 	if( DllGetClassObject == nullptr )
 	{
@@ -51,7 +48,8 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 	}
 
 	IClassFactory* ClassFactory = nullptr;
-	HRESULT Result = DllGetClassObject(clsid, IID_IClassFactory, reinterpret_cast<void**>(&ClassFactory));
+	HRESULT        Result
+		= DllGetClassObject(clsid, IID_IClassFactory, reinterpret_cast<void**>(&ClassFactory));
 	if( Result != S_OK )
 	{
 		std::printf("Failed: Unable to get IClassFactory: %08x\n", Result);
@@ -59,7 +57,8 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 	}
 
 	IInitializeWithFile* InitWithFile;
-	Result = ClassFactory->CreateInstance(nullptr, IID_IInitializeWithFile, reinterpret_cast<void**>(&InitWithFile));
+	Result = ClassFactory->CreateInstance(
+		nullptr, IID_IInitializeWithFile, reinterpret_cast<void**>(&InitWithFile));
 	if( Result != S_OK )
 	{
 		std::puts("Failed: Unable to get IInitializeWithFile");
@@ -68,14 +67,15 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 	ClassFactory->Release();
 
 	IThumbnailProvider* ThumbProvider;
-	Result = InitWithFile->QueryInterface(IID_IThumbnailProvider, reinterpret_cast<void**>(&ThumbProvider));
+	Result = InitWithFile->QueryInterface(
+		IID_IThumbnailProvider, reinterpret_cast<void**>(&ThumbProvider));
 	if( Result != S_OK )
 	{
 		std::puts("Failed: Unable to get IThumbnailProvider");
 		return EXIT_FAILURE;
 	}
 
-	Result = InitWithFile->Initialize(argv[1] , 0);
+	Result = InitWithFile->Initialize(argv[1], 0);
 	InitWithFile->Release();
 	if( Result != S_OK )
 	{
@@ -83,7 +83,7 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 		return EXIT_FAILURE;
 	}
 
-	HBITMAP ThumbImage;
+	HBITMAP       ThumbImage;
 	WTS_ALPHATYPE ThumbAlphaType;
 	Result = ThumbProvider->GetThumbnail(256, &ThumbImage, &ThumbAlphaType);
 	ThumbProvider->Release();
@@ -93,56 +93,52 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 		return EXIT_FAILURE;
 	}
 
-	SaveHBITMAPToFile(
-		ThumbImage,
-		argv[2]
-	);
+	SaveHBITMAPToFile(ThumbImage, argv[2]);
 
 	return EXIT_SUCCESS;
 }
 
 BOOL SaveHBITMAPToFile(HBITMAP Bitmap, const wchar_t* Filename)
 {
-	const DWORD PaletteSize = 0;
-	DWORD BmBitsSize = 0, HeaderSize = 0, Written = 0;
-	BITMAP NewBitmap;
+	const DWORD      PaletteSize = 0;
+	DWORD            BmBitsSize = 0, HeaderSize = 0, Written = 0;
+	BITMAP           NewBitmap;
 	BITMAPFILEHEADER Header;
 	BITMAPINFOHEADER bi;
-	HANDLE hOldPal2 = nullptr;
-	HDC DeviceContext = CreateDC(TEXT("DISPLAY"), nullptr, nullptr, nullptr);
+	HANDLE           hOldPal2      = nullptr;
+	HDC              DeviceContext = CreateDC(TEXT("DISPLAY"), nullptr, nullptr, nullptr);
 	const int Bits = GetDeviceCaps(DeviceContext, BITSPIXEL) * GetDeviceCaps(DeviceContext, PLANES);
 	DeleteDC(DeviceContext);
 	const WORD BitCount = Bits;
 	GetObject(Bitmap, sizeof(NewBitmap), reinterpret_cast<char*>(&NewBitmap));
-	bi.biSize = sizeof(BITMAPINFOHEADER);
-	bi.biWidth = NewBitmap.bmWidth;
-	bi.biHeight = -NewBitmap.bmHeight;
-	bi.biPlanes = 1;
-	bi.biBitCount = BitCount;
-	bi.biCompression = BI_RGB;
-	bi.biSizeImage = 0;
+	bi.biSize          = sizeof(BITMAPINFOHEADER);
+	bi.biWidth         = NewBitmap.bmWidth;
+	bi.biHeight        = -NewBitmap.bmHeight;
+	bi.biPlanes        = 1;
+	bi.biBitCount      = BitCount;
+	bi.biCompression   = BI_RGB;
+	bi.biSizeImage     = 0;
 	bi.biXPelsPerMeter = 0;
 	bi.biYPelsPerMeter = 0;
-	bi.biClrImportant = 0;
-	bi.biClrUsed = 256;
-	BmBitsSize = ((NewBitmap.bmWidth * BitCount + 31) & ~31) / 8
-		* NewBitmap.bmHeight;
-	const HANDLE hDib = GlobalAlloc(GHND, BmBitsSize + PaletteSize + sizeof(BITMAPINFOHEADER));
+	bi.biClrImportant  = 0;
+	bi.biClrUsed       = 256;
+	BmBitsSize         = ((NewBitmap.bmWidth * BitCount + 31) & ~31) / 8 * NewBitmap.bmHeight;
+	const HANDLE hDib  = GlobalAlloc(GHND, BmBitsSize + PaletteSize + sizeof(BITMAPINFOHEADER));
 	const LPBITMAPINFOHEADER lpbi = static_cast<LPBITMAPINFOHEADER>(GlobalLock(hDib));
-	*lpbi = bi;
+	*lpbi                         = bi;
 
 	const HANDLE hPal = GetStockObject(DEFAULT_PALETTE);
 	if( hPal )
 	{
 		DeviceContext = GetDC(nullptr);
-		hOldPal2 = SelectPalette(DeviceContext, static_cast<HPALETTE>(hPal), FALSE);
+		hOldPal2      = SelectPalette(DeviceContext, static_cast<HPALETTE>(hPal), FALSE);
 		RealizePalette(DeviceContext);
 	}
 
 	GetDIBits(
 		DeviceContext, Bitmap, 0, static_cast<std::uint32_t>(NewBitmap.bmHeight),
-		reinterpret_cast<char*>(lpbi) + sizeof(BITMAPINFOHEADER)
-		+ PaletteSize, reinterpret_cast<BITMAPINFO *>(lpbi), DIB_RGB_COLORS);
+		reinterpret_cast<char*>(lpbi) + sizeof(BITMAPINFOHEADER) + PaletteSize,
+		reinterpret_cast<BITMAPINFO*>(lpbi), DIB_RGB_COLORS);
 
 	if( hOldPal2 )
 	{
@@ -161,14 +157,14 @@ BOOL SaveHBITMAPToFile(HBITMAP Bitmap, const wchar_t* Filename)
 	}
 
 	Header.bfType = 0x4D42;
-	HeaderSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + PaletteSize + BmBitsSize;
+	HeaderSize    = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + PaletteSize + BmBitsSize;
 	Header.bfSize = HeaderSize;
 	Header.bfReserved1 = 0;
 	Header.bfReserved2 = 0;
-	Header.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) +
-		PaletteSize;
+	Header.bfOffBits   = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + PaletteSize;
 
-	WriteFile(FileHandle, reinterpret_cast<char*>(&Header), sizeof(BITMAPFILEHEADER), &Written, nullptr);
+	WriteFile(
+		FileHandle, reinterpret_cast<char*>(&Header), sizeof(BITMAPFILEHEADER), &Written, nullptr);
 
 	WriteFile(FileHandle, reinterpret_cast<char*>(lpbi), HeaderSize, &Written, nullptr);
 	GlobalUnlock(hDib);
