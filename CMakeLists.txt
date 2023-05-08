@@ -80,6 +80,8 @@ add_library(
 	source/SaiThumbs.def
 	source/version.rc
 
+	source/stb_image_resize.c
+
 	source/main.cpp
 	source/SaiThumbProvider.cpp
 	source/ClassFactory.cpp
