@@ -1,0 +1,72 @@
+name: Build
+
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+    branches:
+      - main
+      - dev
+  pull_request:
+    paths-ignore:
+      - "**.md"
+    branches:
+      - main
+  release:
+
+jobs:
+  windows-build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x86, x64, x64_arm64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+
+      - name: Configure msvc
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{matrix.arch}}
+
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles"
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config Release --target SaiThumbs --parallel 8
+
+      - name: Zipping artifacts
+        run: >
+          7z a SaiThumbs-${{matrix.arch}}.zip
+          ${{github.workspace}}/build/bin/install.bat
+          ${{github.workspace}}/build/bin/uninstall.bat
+          ${{github.workspace}}/build/bin/SaiThumbs.dll
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: SaiThumbs-${{matrix.arch}}
+          path: |
+            SaiThumbs-${{matrix.arch}}.zip
+
+  create-release:
+    if: github.ref == 'refs/heads/main'
+    needs: windows-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Create release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "Latest Build"
+          files: ${{steps.download.outputs.download-path}}/*
