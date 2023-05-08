@@ -1,16 +1,14 @@
 #pragma once
-#include <memory>
 #include <atomic>
+#include <memory>
 
 #define WIN32_LEAN_AND_MEAN
-#include <thumbcache.h>
 #include <Propsys.h>
+#include <thumbcache.h>
 
 #include <sai.hpp>
 
-class SaiThumbProvider
-	: public IThumbnailProvider,
-	IInitializeWithFile
+class SaiThumbProvider : public IThumbnailProvider, IInitializeWithFile
 {
 public:
 	SaiThumbProvider();
@@ -25,7 +23,9 @@ public:
 	virtual HRESULT _stdcall Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw() override;
 
 	// IThumbnailProvider
-	virtual HRESULT _stdcall GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha) throw() override;
+	virtual HRESULT _stdcall GetThumbnail(
+		UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha) throw() override;
+
 private:
 	std::unique_ptr<sai::Document> CurDocument;
 

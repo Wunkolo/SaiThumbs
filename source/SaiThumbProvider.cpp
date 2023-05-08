@@ -1,9 +1,9 @@
 #include <SaiThumbProvider.hpp>
 
-#include <string>
-#include <locale>
-#include <codecvt>
 #include <algorithm>
+#include <codecvt>
+#include <locale>
+#include <string>
 
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include <stb_image_resize.h>
@@ -11,8 +11,7 @@
 #include <Globals.hpp>
 #include <Shlwapi.h>
 
-SaiThumbProvider::SaiThumbProvider()
-	: ReferenceCount(1)
+SaiThumbProvider::SaiThumbProvider() : ReferenceCount(1)
 {
 	Globals::ReferenceAdd();
 }
@@ -24,13 +23,10 @@ SaiThumbProvider::~SaiThumbProvider()
 
 HRESULT SaiThumbProvider::QueryInterface(const IID& riid, void** ppvObject)
 {
-	static const QITAB InterfaceTable[] =
-	{
+	static const QITAB InterfaceTable[] = {
 		QITABENT(SaiThumbProvider, IInitializeWithFile),
 		QITABENT(SaiThumbProvider, IThumbnailProvider),
-		{
-			nullptr
-		}
+		{nullptr},
 	};
 	return QISearch(this, InterfaceTable, riid, ppvObject);
 }
@@ -57,7 +53,7 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 		return E_FAIL;
 	}
 
-	std::uint32_t Width, Height;
+	std::uint32_t                   Width, Height;
 	std::unique_ptr<std::uint8_t[]> PixelData;
 	std::tie(PixelData, Width, Height) = CurDocument->GetThumbnail();
 
@@ -69,11 +65,9 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 	if( cx < Width || cx < Height )
 	{
 		const std::float_t Scale = (std::min)(
-			cx / static_cast<std::float_t>(Width),
-			cx / static_cast<std::float_t>(Height)
-		);
+			cx / static_cast<std::float_t>(Width), cx / static_cast<std::float_t>(Height));
 
-		const std::uint32_t NewWidth = static_cast<std::uint32_t>(Width * Scale);
+		const std::uint32_t NewWidth  = static_cast<std::uint32_t>(Width * Scale);
 		const std::uint32_t NewHeight = static_cast<std::uint32_t>(Height * Scale);
 
 		if( !NewWidth || !NewHeight )
@@ -81,47 +75,33 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 			return E_FAIL;
 		}
 
-		std::unique_ptr<std::uint8_t[]> Resized = std::make_unique<std::uint8_t[]>(
-			NewWidth * NewHeight * 4
-		);
+		std::unique_ptr<std::uint8_t[]> Resized
+			= std::make_unique<std::uint8_t[]>(NewWidth * NewHeight * 4);
 
 		// Resize image to fit requested size
 		stbir_resize_uint8(
-			PixelData.get(),
-			Width, Height, 0,
-			Resized.get(),
-			NewWidth, NewHeight, 0,
-			4
-		);
+			PixelData.get(), Width, Height, 0, Resized.get(), NewWidth, NewHeight, 0, 4);
 
-		Width = NewWidth;
-		Height = NewHeight;
+		Width     = NewWidth;
+		Height    = NewHeight;
 		PixelData = std::move(Resized);
 	}
 
-	const HBITMAP Bitmap = CreateBitmap(
-		Width,
-		Height,
-		1,
-		32,
-		PixelData.get()
-	);
+	const HBITMAP Bitmap = CreateBitmap(Width, Height, 1, 32, PixelData.get());
 
 	if( Bitmap == nullptr )
 	{
 		return E_FAIL;
 	}
 
-	*phbmp = Bitmap;
+	*phbmp    = Bitmap;
 	*pdwAlpha = WTSAT_UNKNOWN;
 	return S_OK;
 }
 
 HRESULT SaiThumbProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw()
 {
-	std::unique_ptr<sai::Document> NewDocument = std::make_unique<sai::Document>(
-		pszFilePath
-	);
+	std::unique_ptr<sai::Document> NewDocument = std::make_unique<sai::Document>(pszFilePath);
 
 	if( !NewDocument->IsOpen() )
 	{

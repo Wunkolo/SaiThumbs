@@ -15,12 +15,11 @@ namespace SaiThumb
 /// Registry
 struct RegistryEntry
 {
-	HKEY Root;
+	HKEY           Root;
 	const wchar_t* KeyName;
 	const wchar_t* KeyValue;
-	DWORD ValueType;
+	DWORD          ValueType;
 	const wchar_t* Data;
 };
 
-
-}
+} // namespace SaiThumb

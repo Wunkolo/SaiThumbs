@@ -4,11 +4,10 @@
 
 #include <Shlwapi.h>
 
-#include <SaiThumbProvider.hpp>
 #include <Globals.hpp>
+#include <SaiThumbProvider.hpp>
 
-CClassFactory::CClassFactory()
-	: ReferenceCount(1)
+CClassFactory::CClassFactory() : ReferenceCount(1)
 {
 	Globals::ReferenceAdd();
 }
@@ -20,12 +19,9 @@ CClassFactory::~CClassFactory()
 
 HRESULT CClassFactory::QueryInterface(const IID& riid, void** ppvObject)
 {
-	static const QITAB InterfaceTable[] =
-	{
+	static const QITAB InterfaceTable[] = {
 		QITABENT(CClassFactory, IClassFactory),
-		{
-			nullptr
-		},
+		{nullptr},
 	};
 	return QISearch(this, InterfaceTable, riid, ppvObject);
 }
@@ -51,7 +47,7 @@ HRESULT CClassFactory::CreateInstance(IUnknown* pUnkOuter, const IID& riid, void
 	{
 		return CLASS_E_NOAGGREGATION;
 	}
-	*ppvObject = nullptr;
+	*ppvObject                 = nullptr;
 	SaiThumbProvider* Provider = new SaiThumbProvider();
 	if( Provider == nullptr )
 	{
