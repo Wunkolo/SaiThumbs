@@ -1,11 +1,15 @@
 #include <ClassFactory.hpp>
 
-#include <atomic>
+#include <Config.hpp>
+#include <Globals.hpp>
+
+#include <Sai1ThumbProvider.hpp>
+#include <Sai2ThumbProvider.hpp>
 
 #include <Shlwapi.h>
+#include <combaseapi.h>
 
-#include <Globals.hpp>
-#include <SaiThumbProvider.hpp>
+#include <atomic>
 
 CClassFactory::CClassFactory() : ReferenceCount(1)
 {
@@ -49,8 +53,25 @@ HRESULT CClassFactory::CreateInstance(
 	{
 		return CLASS_E_NOAGGREGATION;
 	}
-	*ppvObject                 = nullptr;
-	SaiThumbProvider* Provider = new SaiThumbProvider();
+	*ppvObject = nullptr;
+
+	IThumbnailProvider* Provider = nullptr;
+
+	IID Sai1ThumbHandlerIID;
+	IIDFromString(Sai1ThumbHandlerCLSID, &Sai1ThumbHandlerIID);
+
+	IID Sai2ThumbHandlerIID;
+	IIDFromString(Sai2ThumbHandlerCLSID, &Sai2ThumbHandlerIID);
+
+	if( riid == Sai1ThumbHandlerIID )
+	{
+		Provider = new Sai1ThumbProvider();
+	}
+	else if( riid == Sai2ThumbHandlerIID )
+	{
+		Provider = new Sai2ThumbProvider();
+	}
+
 	if( Provider == nullptr )
 	{
 		return E_OUTOFMEMORY;

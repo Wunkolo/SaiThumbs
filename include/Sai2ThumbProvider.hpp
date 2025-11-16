@@ -6,13 +6,13 @@
 #include <Propsys.h>
 #include <thumbcache.h>
 
-#include <sai.hpp>
+#include <sai2.hpp>
 
-class SaiThumbProvider : public IThumbnailProvider, IInitializeWithFile
+class Sai2ThumbProvider : public IThumbnailProvider, IInitializeWithFile
 {
 public:
-	SaiThumbProvider();
-	virtual ~SaiThumbProvider();
+	Sai2ThumbProvider();
+	virtual ~Sai2ThumbProvider();
 
 	// IUnknown
 	virtual HRESULT _stdcall QueryInterface(
@@ -32,7 +32,5 @@ public:
 	) throw() override;
 
 private:
-	std::unique_ptr<sai::Document> CurDocument;
-
 	std::atomic<std::size_t> ReferenceCount;
 };
