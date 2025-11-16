@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include <stb_image.h>
 #include <stb_image_resize2.h>
 
 #include <Globals.hpp>
@@ -46,15 +47,110 @@ HRESULT Sai2ThumbProvider::GetThumbnail(
 	UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha
 ) throw()
 {
-	std::size_t TestSize = cx;
+	if( !MappedFile.is_open() )
+	{
+		return E_FAIL;
+	}
 
-	std::unique_ptr<std::uint32_t[]> TestPixels
-		= std::make_unique<std::uint32_t[]>(TestSize * TestSize);
+	const std::span<const std::byte> FileData(
+		reinterpret_cast<const std::byte*>(MappedFile.data()), MappedFile.size()
+	);
 
-	std::fill_n(TestPixels.get(), TestSize * TestSize, 0xFF'FF'FF'FF);
+	std::uint32_t                    ThumbnailWidth  = 0;
+	std::uint32_t                    ThumbnailHeight = 0;
+	std::unique_ptr<std::uint32_t[]> ThumbnailRGBA8;
 
-	const HBITMAP Bitmap
-		= CreateBitmap(TestSize, TestSize, 1, 32, TestPixels.get());
+	const auto HandleCanvasThumbnailProc
+		= [&](const sai2::CanvasHeader&  Header,
+			  const sai2::CanvasEntry&   TableEntry,
+			  std::span<const std::byte> Bytes) -> bool {
+		switch( TableEntry.Type )
+		{
+		case sai2::CanvasDataType::ThumbnailOld:
+		{
+			if( const auto JpegStream = sai2::ExtractJssfToJpeg(Bytes);
+				!std::get<0>(JpegStream).empty() )
+			{
+				// Decode jpeg stream
+				const auto JpegData = std::get<0>(JpegStream);
+
+				// Decode jpeg data into RGBA8
+				int      JpegWidth       = 0;
+				int      JpegHeight      = 0;
+				int      JpegChannels    = 0;
+				stbi_uc* JpegDecodedData = stbi_load_from_memory(
+					reinterpret_cast<const stbi_uc*>(JpegData.data()),
+					static_cast<int>(JpegData.size()), &JpegWidth, &JpegHeight,
+					&JpegChannels, 4
+				);
+				if( JpegDecodedData == nullptr )
+				{
+					return false;
+				}
+
+				ThumbnailWidth  = JpegWidth;
+				ThumbnailHeight = JpegHeight;
+				ThumbnailRGBA8
+					= std::make_unique<std::uint32_t[]>(JpegWidth * JpegHeight);
+				std::memcpy(
+					ThumbnailRGBA8.get(), JpegDecodedData,
+					JpegWidth * JpegHeight * sizeof(std::uint32_t)
+				);
+				stbi_image_free(JpegDecodedData);
+			}
+			// Stop iterating after the first thumbnail
+			return false;
+		}
+		default:
+		{
+			// Keep iterating
+			return true;
+		}
+		}
+	};
+
+	sai2::IterateCanvasData(FileData, HandleCanvasThumbnailProc);
+
+	if( !ThumbnailWidth || !ThumbnailHeight || !ThumbnailRGBA8 )
+	{
+		return E_FAIL;
+	}
+
+	if( cx < ThumbnailWidth || cx < ThumbnailHeight )
+	{
+		const std::float_t Scale
+			= (std::min)(cx / static_cast<std::float_t>(ThumbnailWidth),
+						 cx / static_cast<std::float_t>(ThumbnailHeight));
+
+		const std::uint32_t NewWidth
+			= static_cast<std::uint32_t>(ThumbnailWidth * Scale);
+		const std::uint32_t NewHeight
+			= static_cast<std::uint32_t>(ThumbnailHeight * Scale);
+
+		if( !NewWidth || !NewHeight )
+		{
+			return E_FAIL;
+		}
+
+		std::unique_ptr<std::uint32_t[]> Resized
+			= std::make_unique<std::uint32_t[]>(NewWidth * NewHeight);
+
+		// Resize image to fit requested size
+		stbir_resize_uint8_linear(
+			reinterpret_cast<const std::uint8_t*>(ThumbnailRGBA8.get()),
+			ThumbnailWidth, ThumbnailHeight, 0,
+			reinterpret_cast<std::uint8_t*>(Resized.get()), NewWidth, NewHeight,
+			0, STBIR_RGBA
+		);
+
+		ThumbnailWidth  = NewWidth;
+		ThumbnailHeight = NewHeight;
+		ThumbnailRGBA8  = std::move(Resized);
+	}
+
+	const HBITMAP Bitmap = CreateBitmap(
+		ThumbnailWidth, ThumbnailHeight, 1, 32, ThumbnailRGBA8.get()
+	);
 
 	if( Bitmap == nullptr )
 	{
@@ -69,5 +165,14 @@ HRESULT Sai2ThumbProvider::GetThumbnail(
 HRESULT
 Sai2ThumbProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw()
 {
+	mio::mmap_source NewMappedFile = mio::mmap_source(pszFilePath);
+
+	if( !NewMappedFile.is_open() )
+	{
+		return E_FAIL;
+	}
+
+	MappedFile = std::move(NewMappedFile);
+
 	return S_OK;
 }

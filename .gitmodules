@@ -1,3 +1,6 @@
 [submodule "external/libsai"]
 	path = external/libsai
 	url = https://github.com/Wunkolo/libsai.git
+[submodule "external/mio"]
+	path = external/mio
+	url = git@github.com:vimpunk/mio.git
