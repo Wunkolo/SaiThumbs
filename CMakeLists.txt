@@ -80,7 +80,7 @@ add_library(
 	source/SaiThumbs.def
 	source/version.rc
 
-	source/stb_image_resize.c
+	source/stb_image_resize2.c
 
 	source/main.cpp
 	source/SaiThumbProvider.cpp

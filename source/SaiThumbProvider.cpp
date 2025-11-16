@@ -5,7 +5,7 @@
 #include <locale>
 #include <string>
 
-#include <stb_image_resize.h>
+#include <stb_image_resize2.h>
 
 #include <Globals.hpp>
 #include <Shlwapi.h>
@@ -83,10 +83,10 @@ HRESULT SaiThumbProvider::GetThumbnail(
 			= std::make_unique<std::byte[]>(NewWidth * NewHeight * 4);
 
 		// Resize image to fit requested size
-		stbir_resize_uint8(
+		stbir_resize_uint8_linear(
 			reinterpret_cast<const std::uint8_t*>(PixelData.get()), Width,
 			Height, 0, reinterpret_cast<std::uint8_t*>(Resized.get()), NewWidth,
-			NewHeight, 0, 4
+			NewHeight, 0, STBIR_RGBA
 		);
 
 		Width     = NewWidth;
