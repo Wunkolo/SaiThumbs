@@ -9,13 +9,16 @@ public:
 	CClassFactory();
 
 	// IUnknown
-	virtual HRESULT _stdcall QueryInterface(const IID& riid, void** ppvObject) override;
+	virtual HRESULT _stdcall QueryInterface(
+		const IID& riid, void** ppvObject
+	) override;
 	virtual ULONG _stdcall AddRef() override;
 	virtual ULONG _stdcall Release() override;
 
 	// IClassFactory
 	virtual HRESULT _stdcall CreateInstance(
-		IUnknown* pUnkOuter, const IID& riid, void** ppvObject) override;
+		IUnknown* pUnkOuter, const IID& riid, void** ppvObject
+	) override;
 	virtual HRESULT _stdcall LockServer(BOOL fLock) override;
 
 private:
