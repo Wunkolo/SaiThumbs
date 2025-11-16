@@ -29,6 +29,16 @@ std::int32_t __stdcall DllMain(
 	return true;
 }
 
+/// Registry
+struct RegistryEntry
+{
+	HKEY           Root;
+	const wchar_t* KeyName;
+	const wchar_t* KeyValue;
+	DWORD          ValueType;
+	const wchar_t* Data;
+};
+
 /// Registers this DLL as a COM server
 extern "C" HRESULT __stdcall DllRegisterServer()
 {
@@ -37,25 +47,26 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 		reinterpret_cast<HMODULE>(&__ImageBase), ModulePath, MAX_PATH
 	);
 
-	const SaiThumb::RegistryEntry Registry[] = {
-		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" SaiThumbHandlerCLSID,
-		 nullptr, REG_SZ, SaiThumbHandlerName},
-		{HKEY_CURRENT_USER,
-		 L"Software\\Classes\\CLSID\\" SaiThumbHandlerCLSID L"\\InProcServer32",
-		 nullptr, REG_SZ, ModulePath},
-		{HKEY_CURRENT_USER,
-		 L"Software\\Classes\\CLSID\\" SaiThumbHandlerCLSID L"\\InProcServer32",
-		 L"ThreadingModel", REG_SZ, L"Apartment"},
-		{HKEY_CURRENT_USER,
-		 L"Software\\Classes"
-		 L"\\" SaiThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID,
-		 nullptr, REG_SZ, SaiThumbHandlerCLSID},
+	const RegistryEntry Registry[] = {
+		// clang-format off
+		// Register Sai1 Handler
+		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID,                     nullptr,           REG_SZ, Sai1ThumbHandlerName},
+		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
+		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
+		{HKEY_CURRENT_USER, L"Software\\Classes\\" Sai1ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID, nullptr, REG_SZ, Sai1ThumbHandlerCLSID},
+		// Register Sai2 Handler
+		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID,                     nullptr,           REG_SZ, Sai2ThumbHandlerName},
+		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
+		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
+		{HKEY_CURRENT_USER, L"Software\\Classes\\" Sai2ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID, nullptr, REG_SZ, Sai2ThumbHandlerCLSID},
+		// clang-format on
 	};
 
+	// Set all the appropriate registery entries
 	for( std::size_t i = 0; i < std::extent_v<decltype(Registry)>; i++ )
 	{
-		HKEY                           CurKey;
-		const SaiThumb::RegistryEntry& CurReg = Registry[i];
+		HKEY                 CurKey;
+		const RegistryEntry& CurReg = Registry[i];
 		RegCreateKeyExW(
 			CurReg.Root, CurReg.KeyName, 0, nullptr, REG_OPTION_NON_VOLATILE,
 			KEY_SET_VALUE, nullptr, &CurKey, nullptr
@@ -70,31 +81,71 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 		RegCloseKey(CurKey);
 	}
 
-	HKEY CurKey;
-	RegCreateKeyExW(
-		HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" SaiThumbHandlerCLSID,
-		0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &CurKey,
-		nullptr
-	);
-	DWORD DisableProcessIsolation = 1;
-	RegSetValueExW(
-		CurKey, L"DisableProcessIsolation", 0, REG_DWORD,
-		reinterpret_cast<const unsigned char*>(&DisableProcessIsolation),
-		sizeof(DWORD)
-	);
-	RegCloseKey(CurKey);
+	// Further configure the Sai1 thumbnail-handler
+	{
 
-	RegCreateKeyExW(
-		HKEY_CURRENT_USER, L"Software\\Classes\\" SaiThumbHandlerExtension, 0,
-		nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &CurKey,
-		nullptr
-	);
-	DWORD Treatment = 2;
-	RegSetValueExW(
-		CurKey, L"Treatment", 0, REG_DWORD,
-		reinterpret_cast<const unsigned char*>(&Treatment), sizeof(DWORD)
-	);
-	RegCloseKey(CurKey);
+		HKEY CurKey;
+		RegCreateKeyExW(
+			HKEY_CURRENT_USER,
+			L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID, 0, nullptr,
+			REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &CurKey, nullptr
+		);
+
+		// Don't run this thumbnail handler in a separate process
+		DWORD DisableProcessIsolation = 1;
+		RegSetValueExW(
+			CurKey, L"DisableProcessIsolation", 0, REG_DWORD,
+			reinterpret_cast<const unsigned char*>(&DisableProcessIsolation),
+			sizeof(DWORD)
+		);
+		RegCloseKey(CurKey);
+
+		// Use the Photo-Border for this thumbnail-handler
+		RegCreateKeyExW(
+			HKEY_CURRENT_USER, L"Software\\Classes\\" Sai1ThumbHandlerExtension,
+			0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr,
+			&CurKey, nullptr
+		);
+		DWORD Treatment = 2;
+		RegSetValueExW(
+			CurKey, L"Treatment", 0, REG_DWORD,
+			reinterpret_cast<const unsigned char*>(&Treatment), sizeof(DWORD)
+		);
+		RegCloseKey(CurKey);
+	}
+
+	// Further configure the Sai2 thumbnail-handler
+	{
+
+		HKEY CurKey;
+		RegCreateKeyExW(
+			HKEY_CURRENT_USER,
+			L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID, 0, nullptr,
+			REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &CurKey, nullptr
+		);
+
+		// Don't run this thumbnail handler in a separate process
+		DWORD DisableProcessIsolation = 1;
+		RegSetValueExW(
+			CurKey, L"DisableProcessIsolation", 0, REG_DWORD,
+			reinterpret_cast<const unsigned char*>(&DisableProcessIsolation),
+			sizeof(DWORD)
+		);
+		RegCloseKey(CurKey);
+
+		// Use the Photo-Border for this thumbnail-handler
+		RegCreateKeyExW(
+			HKEY_CURRENT_USER, L"Software\\Classes\\" Sai2ThumbHandlerExtension,
+			0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr,
+			&CurKey, nullptr
+		);
+		DWORD Treatment = 2;
+		RegSetValueExW(
+			CurKey, L"Treatment", 0, REG_DWORD,
+			reinterpret_cast<const unsigned char*>(&Treatment), sizeof(DWORD)
+		);
+		RegCloseKey(CurKey);
+	}
 
 	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
 	return S_OK;
@@ -103,9 +154,12 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 /// Unregisters this DLL as a COM server
 extern "C" HRESULT __stdcall DllUnregisterServer()
 {
-	const wchar_t* RegistryFolders[]
-		= {L"Software\\Classes\\CLSID\\" SaiThumbHandlerCLSID,
-		   L"Software\\Classes\\" SaiThumbHandlerExtension};
+	const wchar_t* RegistryFolders[] = {
+		L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID,
+		L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID,
+		L"Software\\Classes\\" Sai1ThumbHandlerExtension,
+		L"Software\\Classes\\" Sai2ThumbHandlerExtension,
+	};
 
 	for( std::size_t i = 0; i < std::extent_v<decltype(RegistryFolders)>; i++ )
 	{
@@ -128,10 +182,14 @@ extern "C" HRESULT __stdcall DllGetClassObject(
 		return E_INVALIDARG;
 	}
 
-	IID ThumbHandlerCLSID;
-	IIDFromString(SaiThumbHandlerCLSID, &ThumbHandlerCLSID);
+	IID Sai1ThumbHandlerIID;
+	IIDFromString(Sai1ThumbHandlerCLSID, &Sai1ThumbHandlerIID);
 
-	if( !IsEqualCLSID(ThumbHandlerCLSID, rclsid) )
+	IID Sai2ThumbHandlerIID;
+	IIDFromString(Sai2ThumbHandlerCLSID, &Sai2ThumbHandlerIID);
+
+	if( !IsEqualCLSID(Sai1ThumbHandlerIID, rclsid)
+		|| !IsEqualCLSID(Sai2ThumbHandlerIID, rclsid) )
 	{
 		return CLASS_E_CLASSNOTAVAILABLE;
 	}
