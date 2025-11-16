@@ -8,6 +8,8 @@
 
 #include <sai2.hpp>
 
+#include <mio/mmap.hpp>
+
 class Sai2ThumbProvider : public IThumbnailProvider, IInitializeWithFile
 {
 public:
@@ -33,4 +35,6 @@ public:
 
 private:
 	std::atomic<std::size_t> ReferenceCount;
+
+	mio::mmap_source MappedFile;
 };

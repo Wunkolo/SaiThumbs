@@ -68,6 +68,7 @@ endforeach(CurFlag)
 
 ### Dependencies
 add_subdirectory( external/libsai )
+add_subdirectory( external/mio EXCLUDE_FROM_ALL )
 
 ### Target
 include_directories(
@@ -81,6 +82,7 @@ add_library(
 	source/version.rc
 
 	source/stb_image_resize2.c
+	source/stb_image.c
 
 	source/main.cpp
 	source/Sai1ThumbProvider.cpp
@@ -90,7 +92,9 @@ add_library(
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
-	sai Shlwapi.lib
+	sai
+	mio::mio
+	Shlwapi.lib
 )
 
 configure_file(
