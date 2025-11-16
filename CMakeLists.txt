@@ -85,7 +85,6 @@ add_library(
 	source/main.cpp
 	source/Sai1ThumbProvider.cpp
 	source/Sai2ThumbProvider.cpp
-	source/ClassFactory.cpp
 	source/Globals.cpp
 )
 target_link_libraries(
