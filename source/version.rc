@@ -12,9 +12,9 @@ BEGIN
 		BLOCK "040904b0"
 		BEGIN
 			VALUE "CompanyName",		"Wunkolo"
-			VALUE "FileDescription",	"Sai Thumbnail Handler"
+			VALUE "FileDescription",	"Sai/Sai2 Thumbnail Handler"
 			VALUE "InternalName",		"SaiThumbs"
-			VALUE "LegalCopyright",		"Copyright (C) 2023, Wunkolo"
+			VALUE "LegalCopyright",		"Copyright (C) 2025, Wunkolo"
 			VALUE "OriginalFilename",	"SaiThumbs.dll"
 			VALUE "ProductName",		"SaiThumbs"
 		END
