@@ -1,41 +1,38 @@
-#include <SaiThumbProvider.hpp>
+#include <Sai2ThumbProvider.hpp>
 
 #include <algorithm>
-#include <codecvt>
-#include <locale>
-#include <string>
 
 #include <stb_image_resize2.h>
 
 #include <Globals.hpp>
 #include <Shlwapi.h>
 
-SaiThumbProvider::SaiThumbProvider() : ReferenceCount(1)
+Sai2ThumbProvider::Sai2ThumbProvider() : ReferenceCount(1)
 {
 	Globals::ReferenceAdd();
 }
 
-SaiThumbProvider::~SaiThumbProvider()
+Sai2ThumbProvider::~Sai2ThumbProvider()
 {
 	Globals::ReferenceRelease();
 }
 
-HRESULT SaiThumbProvider::QueryInterface(const IID& riid, void** ppvObject)
+HRESULT Sai2ThumbProvider::QueryInterface(const IID& riid, void** ppvObject)
 {
 	static const QITAB InterfaceTable[] = {
-		QITABENT(SaiThumbProvider, IInitializeWithFile),
-		QITABENT(SaiThumbProvider, IThumbnailProvider),
+		QITABENT(Sai2ThumbProvider, IInitializeWithFile),
+		QITABENT(Sai2ThumbProvider, IThumbnailProvider),
 		{nullptr},
 	};
 	return QISearch(this, InterfaceTable, riid, ppvObject);
 }
 
-ULONG SaiThumbProvider::AddRef() throw()
+ULONG Sai2ThumbProvider::AddRef() throw()
 {
 	return static_cast<std::uint32_t>(++ReferenceCount);
 }
 
-ULONG SaiThumbProvider::Release() throw()
+ULONG Sai2ThumbProvider::Release() throw()
 {
 	const std::size_t NewReferenceCount = --ReferenceCount;
 	if( NewReferenceCount == 0 )
@@ -45,18 +42,12 @@ ULONG SaiThumbProvider::Release() throw()
 	return static_cast<std::uint32_t>(NewReferenceCount);
 }
 
-HRESULT SaiThumbProvider::GetThumbnail(
+HRESULT Sai2ThumbProvider::GetThumbnail(
 	UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha
 ) throw()
 {
-	if( CurDocument == nullptr )
-	{
-		return E_FAIL;
-	}
-
 	std::uint32_t                Width, Height;
 	std::unique_ptr<std::byte[]> PixelData;
-	std::tie(PixelData, Width, Height) = CurDocument->GetThumbnail();
 
 	if( PixelData == nullptr || !Width || !Height )
 	{
@@ -106,16 +97,8 @@ HRESULT SaiThumbProvider::GetThumbnail(
 	return S_OK;
 }
 
-HRESULT SaiThumbProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw()
+HRESULT
+Sai2ThumbProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw()
 {
-	std::unique_ptr<sai::Document> NewDocument
-		= std::make_unique<sai::Document>(pszFilePath);
-
-	if( !NewDocument->IsOpen() )
-	{
-		return E_FAIL;
-	}
-
-	CurDocument = std::move(NewDocument);
 	return S_OK;
 }

@@ -1,0 +1,38 @@
+#pragma once
+#include <atomic>
+#include <memory>
+
+#define WIN32_LEAN_AND_MEAN
+#include <Propsys.h>
+#include <thumbcache.h>
+
+#include <sai.hpp>
+
+class Sai1ThumbProvider : public IThumbnailProvider, IInitializeWithFile
+{
+public:
+	Sai1ThumbProvider();
+	virtual ~Sai1ThumbProvider();
+
+	// IUnknown
+	virtual HRESULT _stdcall QueryInterface(
+		const IID& riid, void** ppvObject
+	) override;
+	virtual ULONG __stdcall AddRef() throw() override;
+	virtual ULONG __stdcall Release() throw() override;
+
+	// IInitializeWithFile
+	virtual HRESULT _stdcall Initialize(
+		LPCWSTR pszFilePath, DWORD grfMode
+	) throw() override;
+
+	// IThumbnailProvider
+	virtual HRESULT _stdcall GetThumbnail(
+		UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha
+	) throw() override;
+
+private:
+	std::unique_ptr<sai::Document> CurDocument;
+
+	std::atomic<std::size_t> ReferenceCount;
+};

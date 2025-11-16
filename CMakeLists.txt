@@ -83,7 +83,8 @@ add_library(
 	source/stb_image_resize2.c
 
 	source/main.cpp
-	source/SaiThumbProvider.cpp
+	source/Sai1ThumbProvider.cpp
+	source/Sai2ThumbProvider.cpp
 	source/ClassFactory.cpp
 	source/Globals.cpp
 )
