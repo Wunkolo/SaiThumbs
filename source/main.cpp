@@ -188,14 +188,14 @@ extern "C" HRESULT __stdcall DllGetClassObject(
 	IID Sai2ThumbHandlerIID;
 	IIDFromString(Sai2ThumbHandlerCLSID, &Sai2ThumbHandlerIID);
 
+	IClassFactory* ClassFactory = new CClassFactory();
 	// Our class factory only handles sai1 and sai2
-	if( !IsEqualCLSID(Sai1ThumbHandlerIID, rclsid)
-		|| !IsEqualCLSID(Sai2ThumbHandlerIID, rclsid) )
+	if( !(IsEqualCLSID(Sai1ThumbHandlerIID, rclsid)
+		  || IsEqualCLSID(Sai2ThumbHandlerIID, rclsid)) )
 	{
 		return CLASS_E_CLASSNOTAVAILABLE;
 	}
 
-	CClassFactory* ClassFactory = new CClassFactory();
 	if( ClassFactory == nullptr )
 	{
 		return E_OUTOFMEMORY;

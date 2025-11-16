@@ -63,11 +63,11 @@ HRESULT CClassFactory::CreateInstance(
 	IID Sai2ThumbHandlerIID;
 	IIDFromString(Sai2ThumbHandlerCLSID, &Sai2ThumbHandlerIID);
 
-	if( riid == Sai1ThumbHandlerIID )
+	if( IsEqualCLSID(riid, Sai1ThumbHandlerIID) )
 	{
 		Provider = new Sai1ThumbProvider();
 	}
-	else if( riid == Sai2ThumbHandlerIID )
+	else if( IsEqualCLSID(riid, Sai2ThumbHandlerIID) )
 	{
 		Provider = new Sai2ThumbProvider();
 	}
