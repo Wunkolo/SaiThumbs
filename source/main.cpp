@@ -7,9 +7,11 @@
 #include <Windows.h>
 #include <shlobj.h>
 
-#include <ClassFactory.hpp>
+#include "Sai1ThumbProvider.hpp"
+#include "Sai2ThumbProvider.hpp"
 #include <Config.hpp>
 #include <Globals.hpp>
+#include <ThumbnailProviderClassFactory.hpp>
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
@@ -188,10 +190,16 @@ extern "C" HRESULT __stdcall DllGetClassObject(
 	IID Sai2ThumbHandlerIID;
 	IIDFromString(Sai2ThumbHandlerCLSID, &Sai2ThumbHandlerIID);
 
-	IClassFactory* ClassFactory = new CClassFactory();
-	// Our class factory only handles sai1 and sai2
-	if( !(IsEqualCLSID(Sai1ThumbHandlerIID, rclsid)
-		  || IsEqualCLSID(Sai2ThumbHandlerIID, rclsid)) )
+	IClassFactory* ClassFactory = nullptr;
+	if( IsEqualCLSID(Sai1ThumbHandlerIID, rclsid) )
+	{
+		ClassFactory = new ThumbnailProviderClassFactory<Sai1ThumbProvider>();
+	}
+	else if( IsEqualCLSID(Sai2ThumbHandlerIID, rclsid) )
+	{
+		ClassFactory = new ThumbnailProviderClassFactory<Sai2ThumbProvider>();
+	}
+	else
 	{
 		return CLASS_E_CLASSNOTAVAILABLE;
 	}
