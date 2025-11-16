@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include <cstddef>
 
 #include <Unknwn.h>
@@ -23,5 +24,5 @@ public:
 
 private:
 	~CClassFactory();
-	std::size_t ReferenceCount;
+	std::atomic<std::size_t> ReferenceCount;
 };
