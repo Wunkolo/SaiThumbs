@@ -148,6 +148,24 @@ HRESULT Sai2ThumbProvider::GetThumbnail(
 		ThumbnailRGBA8  = std::move(Resized);
 	}
 
+#if 1
+	//// RGBA to BGRA
+	for( std::size_t i = 0; i < (ThumbnailWidth * ThumbnailHeight); ++i )
+	{
+		std::uint32_t& Pixel32 = ThumbnailRGBA8.get()[i];
+
+		const std::uint32_t Alpha = (Pixel32 >> 24) & 0xFF; // AARRGGBB -> AA
+		const std::uint32_t Red   = (Pixel32 >> 16) & 0xFF; // AARRGGBB -> RR
+		const std::uint32_t Green = (Pixel32 >> 8) & 0xFF;  // AARRGGBB -> GG
+		const std::uint32_t Blue  = (Pixel32 >> 0) & 0xFF;  // AARRGGBB -> BB
+
+		Pixel32 = (Alpha << 24) | // AA
+				  (Blue << 16) |  // BB
+				  (Green << 8) |  // GG
+				  (Red << 0);     // RR
+	}
+#endif
+
 	const HBITMAP Bitmap = CreateBitmap(
 		ThumbnailWidth, ThumbnailHeight, 1, 32, ThumbnailRGBA8.get()
 	);
