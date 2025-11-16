@@ -41,7 +41,9 @@ ULONG CClassFactory::Release()
 	return static_cast<std::uint32_t>(NewReferenceCount);
 }
 
-HRESULT CClassFactory::CreateInstance(IUnknown* pUnkOuter, const IID& riid, void** ppvObject)
+HRESULT CClassFactory::CreateInstance(
+	IUnknown* pUnkOuter, const IID& riid, void** ppvObject
+)
 {
 	if( pUnkOuter != nullptr )
 	{

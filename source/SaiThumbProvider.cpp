@@ -45,7 +45,9 @@ ULONG SaiThumbProvider::Release() throw()
 	return static_cast<std::uint32_t>(NewReferenceCount);
 }
 
-HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha) throw()
+HRESULT SaiThumbProvider::GetThumbnail(
+	UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha
+) throw()
 {
 	if( CurDocument == nullptr )
 	{
@@ -63,11 +65,14 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 
 	if( cx < Width || cx < Height )
 	{
-		const std::float_t Scale = (std::min)(
-			cx / static_cast<std::float_t>(Width), cx / static_cast<std::float_t>(Height));
+		const std::float_t Scale
+			= (std::min)(cx / static_cast<std::float_t>(Width),
+						 cx / static_cast<std::float_t>(Height));
 
-		const std::uint32_t NewWidth  = static_cast<std::uint32_t>(Width * Scale);
-		const std::uint32_t NewHeight = static_cast<std::uint32_t>(Height * Scale);
+		const std::uint32_t NewWidth
+			= static_cast<std::uint32_t>(Width * Scale);
+		const std::uint32_t NewHeight
+			= static_cast<std::uint32_t>(Height * Scale);
 
 		if( !NewWidth || !NewHeight )
 		{
@@ -79,8 +84,10 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 
 		// Resize image to fit requested size
 		stbir_resize_uint8(
-			reinterpret_cast<const std::uint8_t*>(PixelData.get()), Width, Height, 0,
-			reinterpret_cast<std::uint8_t*>(Resized.get()), NewWidth, NewHeight, 0, 4);
+			reinterpret_cast<const std::uint8_t*>(PixelData.get()), Width,
+			Height, 0, reinterpret_cast<std::uint8_t*>(Resized.get()), NewWidth,
+			NewHeight, 0, 4
+		);
 
 		Width     = NewWidth;
 		Height    = NewHeight;
@@ -101,7 +108,8 @@ HRESULT SaiThumbProvider::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
 
 HRESULT SaiThumbProvider::Initialize(LPCWSTR pszFilePath, DWORD grfMode) throw()
 {
-	std::unique_ptr<sai::Document> NewDocument = std::make_unique<sai::Document>(pszFilePath);
+	std::unique_ptr<sai::Document> NewDocument
+		= std::make_unique<sai::Document>(pszFilePath);
 
 	if( !NewDocument->IsOpen() )
 	{
