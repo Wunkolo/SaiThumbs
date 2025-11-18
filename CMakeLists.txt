@@ -74,7 +74,8 @@ add_library(
 	SHARED
 
 	source/SaiThumbs.def
-	source/version.rc
+
+	"${PROJECT_BINARY_DIR}/source/version.rc"
 
 	source/stb_image_resize2.c
 	source/stb_image.c
@@ -102,6 +103,21 @@ configure_file(
 	bin/uninstall.bat
 	${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_DIRECTORY}/uninstall.bat
 	COPYONLY
+)
+
+execute_process(
+	COMMAND git rev-parse --short HEAD
+	OUTPUT_VARIABLE GIT_HASH
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+string(TIMESTAMP BUILD_YEAR "%Y") 
+string(TIMESTAMP BUILD_MONTH "%m") 
+string(TIMESTAMP BUILD_DAY "%d") 
+
+configure_file(
+	source/version.rc.in
+	"${PROJECT_BINARY_DIR}/source/version.rc"
+	@ONLY
 )
 
 ### Tests
