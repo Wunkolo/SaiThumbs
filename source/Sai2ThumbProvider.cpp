@@ -66,7 +66,7 @@ HRESULT Sai2ThumbProvider::GetThumbnail(
 			  std::span<const std::byte> Bytes) -> bool {
 		switch( TableEntry.Type )
 		{
-		case sai2::CanvasDataType::ThumbnailOld:
+		case sai2::CanvasDataType::ThumbnailLossy:
 		{
 			if( const auto JpegStream = sai2::ExtractJssfToJpeg(Bytes);
 				!std::get<0>(JpegStream).empty() )
@@ -98,8 +98,45 @@ HRESULT Sai2ThumbProvider::GetThumbnail(
 				);
 				stbi_image_free(JpegDecodedData);
 			}
-			// Stop iterating after the first thumbnail
+			// Stop iterating after finding a thumbnail
 			return false;
+		}
+		case sai2::CanvasDataType::ThumbnailLossless:
+		{
+			if( auto Extracted = sai2::ExtractDpcmToBGRA(Header, Bytes);
+				!std::get<0>(Extracted).empty() )
+			{
+				std::vector<std::byte>& ThumbnailData = std::get<0>(Extracted);
+
+				const std::span<std::uint32_t> ThumbnailImage(
+					reinterpret_cast<std::uint32_t*>(ThumbnailData.data()),
+					std::get<1>(Extracted) * std::get<2>(Extracted)
+				);
+
+				//// BGRA to RGBA
+				for( std::uint32_t& Pixel : ThumbnailImage )
+				{
+					// G and R are already where they need to be.
+					// Just swap B and R channels
+					const std::uint8_t R = ((Pixel >> 16));
+					const std::uint8_t B = ((Pixel >> 0));
+					Pixel                = (Pixel & 0xFF'00'FF'00) | R
+						  | (std::uint32_t(B) << 16);
+				}
+
+				ThumbnailWidth  = std::get<1>(Extracted);
+				ThumbnailHeight = std::get<2>(Extracted);
+				ThumbnailRGBA8  = std::make_unique<std::uint32_t[]>(
+                    ThumbnailWidth * ThumbnailHeight
+                );
+				std::memcpy(
+					ThumbnailRGBA8.get(), ThumbnailImage.data(),
+					ThumbnailImage.size_bytes()
+				);
+			}
+			// Stop iterating after finding a thumbnail
+			return false;
+			break;
 		}
 		default:
 		{
