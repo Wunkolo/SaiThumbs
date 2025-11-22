@@ -212,7 +212,7 @@ HRESULT Sai2ThumbProvider::GetThumbnail(
 	}
 
 	*phbmp    = Bitmap;
-	*pdwAlpha = WTSAT_UNKNOWN;
+	*pdwAlpha = WTSAT_ARGB;
 	return S_OK;
 }
 
