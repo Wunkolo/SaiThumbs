@@ -14,9 +14,8 @@
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
-std::int32_t __stdcall DllMain(
-	HINSTANCE hDLL, std::uint32_t Reason, void* Reserved
-)
+std::int32_t __stdcall
+	DllMain(HINSTANCE hDLL, std::uint32_t Reason, void* Reserved)
 {
 	switch( Reason )
 	{
@@ -51,15 +50,15 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 	const RegistryEntry Registry[] = {
 		// clang-format off
 		// Register Sai1 Handler
-		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID,                     nullptr,           REG_SZ, Sai1ThumbHandlerName},
-		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
-		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
-		{HKEY_CLASSES_ROOT, L"Software\\Classes\\" Sai1ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID, nullptr, REG_SZ, Sai1ThumbHandlerCLSID},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID_SZ,                     nullptr,           REG_SZ, Sai1ThumbHandlerName},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID_SZ L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID_SZ L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\" Sai1ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID_SZ, nullptr, REG_SZ, Sai1ThumbHandlerCLSID_SZ},
 		// Register Sai2 Handler
-		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID,                     nullptr,           REG_SZ, Sai2ThumbHandlerName},
-		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
-		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
-		{HKEY_CLASSES_ROOT, L"Software\\Classes\\" Sai2ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID, nullptr, REG_SZ, Sai2ThumbHandlerCLSID},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID_SZ,                     nullptr,           REG_SZ, Sai2ThumbHandlerName},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID_SZ L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID_SZ L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\" Sai2ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID_SZ, nullptr, REG_SZ, Sai2ThumbHandlerCLSID_SZ},
 		// clang-format on
 	};
 
@@ -88,7 +87,7 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 		HKEY CurKey;
 		RegCreateKeyExW(
 			HKEY_CLASSES_ROOT,
-			L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID, 0, nullptr,
+			L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID_SZ, 0, nullptr,
 			REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &CurKey, nullptr
 		);
 
@@ -121,7 +120,7 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 		HKEY CurKey;
 		RegCreateKeyExW(
 			HKEY_CLASSES_ROOT,
-			L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID, 0, nullptr,
+			L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID_SZ, 0, nullptr,
 			REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &CurKey, nullptr
 		);
 
@@ -156,8 +155,8 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 extern "C" HRESULT __stdcall DllUnregisterServer()
 {
 	const wchar_t* RegistryFolders[] = {
-		L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID,
-		L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID,
+		L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID_SZ,
+		L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID_SZ,
 		L"Software\\Classes\\" Sai1ThumbHandlerExtension,
 		L"Software\\Classes\\" Sai2ThumbHandlerExtension,
 	};
@@ -174,27 +173,20 @@ extern "C" HRESULT __stdcall DllCanUnloadNow()
 	return Globals::ReferenceGet() ? S_FALSE : S_OK;
 }
 
-extern "C" HRESULT __stdcall DllGetClassObject(
-	const IID& rclsid, const IID& riid, void** ppv
-)
+extern "C" HRESULT __stdcall
+	DllGetClassObject(const IID& rclsid, const IID& riid, void** ppv)
 {
 	if( ppv == nullptr )
 	{
 		return E_INVALIDARG;
 	}
 
-	IID Sai1ThumbHandlerIID;
-	IIDFromString(Sai1ThumbHandlerCLSID, &Sai1ThumbHandlerIID);
-
-	IID Sai2ThumbHandlerIID;
-	IIDFromString(Sai2ThumbHandlerCLSID, &Sai2ThumbHandlerIID);
-
 	IClassFactory* ClassFactory = nullptr;
-	if( IsEqualCLSID(Sai1ThumbHandlerIID, rclsid) )
+	if( IsEqualGUID(SaiThumb::Sai1ThumbHandlerCLSID, rclsid) )
 	{
 		ClassFactory = new ThumbnailProviderClassFactory<Sai1ThumbProvider>();
 	}
-	else if( IsEqualCLSID(Sai2ThumbHandlerIID, rclsid) )
+	else if( IsEqualGUID(SaiThumb::Sai2ThumbHandlerCLSID, rclsid) )
 	{
 		ClassFactory = new ThumbnailProviderClassFactory<Sai2ThumbProvider>();
 	}
