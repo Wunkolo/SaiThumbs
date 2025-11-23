@@ -51,15 +51,15 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 	const RegistryEntry Registry[] = {
 		// clang-format off
 		// Register Sai1 Handler
-		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID,                     nullptr,           REG_SZ, Sai1ThumbHandlerName},
-		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
-		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
-		{HKEY_CURRENT_USER, L"Software\\Classes\\" Sai1ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID, nullptr, REG_SZ, Sai1ThumbHandlerCLSID},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID,                     nullptr,           REG_SZ, Sai1ThumbHandlerName},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\" Sai1ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID, nullptr, REG_SZ, Sai1ThumbHandlerCLSID},
 		// Register Sai2 Handler
-		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID,                     nullptr,           REG_SZ, Sai2ThumbHandlerName},
-		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
-		{HKEY_CURRENT_USER, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
-		{HKEY_CURRENT_USER, L"Software\\Classes\\" Sai2ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID, nullptr, REG_SZ, Sai2ThumbHandlerCLSID},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID,                     nullptr,           REG_SZ, Sai2ThumbHandlerName},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID L"\\InProcServer32", nullptr,           REG_SZ, ModulePath},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID L"\\InProcServer32", L"ThreadingModel", REG_SZ, L"Apartment"},
+		{HKEY_CLASSES_ROOT, L"Software\\Classes\\" Sai2ThumbHandlerExtension L"\\ShellEx\\" IThumbnailProviderCLSID, nullptr, REG_SZ, Sai2ThumbHandlerCLSID},
 		// clang-format on
 	};
 
@@ -87,7 +87,7 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 
 		HKEY CurKey;
 		RegCreateKeyExW(
-			HKEY_CURRENT_USER,
+			HKEY_CLASSES_ROOT,
 			L"Software\\Classes\\CLSID\\" Sai1ThumbHandlerCLSID, 0, nullptr,
 			REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &CurKey, nullptr
 		);
@@ -103,7 +103,7 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 
 		// Use the Photo-Border for this thumbnail-handler
 		RegCreateKeyExW(
-			HKEY_CURRENT_USER, L"Software\\Classes\\" Sai1ThumbHandlerExtension,
+			HKEY_CLASSES_ROOT, L"Software\\Classes\\" Sai1ThumbHandlerExtension,
 			0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr,
 			&CurKey, nullptr
 		);
@@ -120,7 +120,7 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 
 		HKEY CurKey;
 		RegCreateKeyExW(
-			HKEY_CURRENT_USER,
+			HKEY_CLASSES_ROOT,
 			L"Software\\Classes\\CLSID\\" Sai2ThumbHandlerCLSID, 0, nullptr,
 			REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &CurKey, nullptr
 		);
@@ -136,7 +136,7 @@ extern "C" HRESULT __stdcall DllRegisterServer()
 
 		// Use the Photo-Border for this thumbnail-handler
 		RegCreateKeyExW(
-			HKEY_CURRENT_USER, L"Software\\Classes\\" Sai2ThumbHandlerExtension,
+			HKEY_CLASSES_ROOT, L"Software\\Classes\\" Sai2ThumbHandlerExtension,
 			0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr,
 			&CurKey, nullptr
 		);
@@ -164,7 +164,7 @@ extern "C" HRESULT __stdcall DllUnregisterServer()
 
 	for( std::size_t i = 0; i < std::extent_v<decltype(RegistryFolders)>; i++ )
 	{
-		RegDeleteTreeW(HKEY_CURRENT_USER, RegistryFolders[i]);
+		RegDeleteTreeW(HKEY_CLASSES_ROOT, RegistryFolders[i]);
 	}
 	return S_OK;
 }
