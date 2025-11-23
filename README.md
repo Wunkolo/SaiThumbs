@@ -6,7 +6,9 @@ SaiThumbs is a Windows Shell extension that will allow image thumbnails for the 
 
 ![logo](media/logo.gif)
 
-![sample](media/sample.gif)
+![sample](media/scroll.gif)
+
+> Featuring art by [@vintagefoods_​](https://x.com/vintagefoods_)([vf.media](https://vf.media/))!
 
 ![install](media/install.gif)
 
