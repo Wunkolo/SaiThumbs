@@ -146,7 +146,10 @@ HRESULT Sai2ThumbProvider::GetThumbnail(
 		}
 	};
 
-	sai2::IterateCanvasData(FileData, HandleCanvasThumbnailProc);
+	if( !sai2::IterateCanvasData(FileData, HandleCanvasThumbnailProc) )
+	{
+		return E_FAIL;
+	}
 
 	if( !ThumbnailWidth || !ThumbnailHeight || !ThumbnailRGBA8 )
 	{
